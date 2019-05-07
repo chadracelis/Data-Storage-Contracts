@@ -1,0 +1,17 @@
+pragma solidity >=0.4.0 <0.6.0;
+
+contract SimpleStorage {
+    string public data;
+    
+    function set(string memory _data) public {
+        data = _data;
+    }
+    
+    function get() view public returns(string memory) {
+        return data;
+    }
+    
+}
+
+// Set is executed as a transaction while Get is executed as a call
+// view = read-only function
