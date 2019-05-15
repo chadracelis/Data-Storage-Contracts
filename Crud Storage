@@ -17,15 +17,15 @@ contract Crud {
         nextId++;
     }
     
-    function read(uint id) view public returns(uint, string memory, uint) {
-        uint i = find(id);
-        return(users[i].id, users[i].name, users[i].age);
-    }
-    
     function update(uint id, string memory name, uint age) public  {
         uint i = find(id);
         users[i].name = name;
         users[i].age = age;
+    }
+    
+     function read(uint id) view public returns(uint, string memory, uint) {
+        uint i = find(id);
+        return(users[i].id, users[i].name, users[i].age);
     }
     
     function destroy(uint id) public {
