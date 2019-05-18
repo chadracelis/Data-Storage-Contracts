@@ -1,0 +1,66 @@
+pragma solidity >=0.4.0 <0.6.0;
+
+contract DataManagement {
+    
+    struct visitor {
+        uint ID;
+        string name;
+        string host;
+        uint timeIn;
+        uint timeOut;
+    }
+    
+    address security;
+    visitor[] visitors;
+    uint nextID = 0;
+    
+    event enter(uint ID, string name, string host, uint timeIn);
+    event exit(uint ID, uint timeOut);
+    
+    constructor() public {
+        security = msg.sender;
+    }
+    
+    modifier isSecurity {
+        require(msg.sender == security);
+        _;
+    }
+    
+    function signIn(string memory name, string memory host, uint timeIn, uint timeOut) public isSecurity {
+        visitors.push(visitor(nextID, name, host, timeIn, timeOut));
+        timeOut = 0;
+        nextID++;
+        emit enter(nextID, name, host, timeIn);
+    }
+    
+    function signOut(uint ID, uint timeOut) public isSecurity {
+        uint i = find(ID);
+        visitors[i].timeOut = timeOut;
+        emit exit(ID, timeOut);
+    }
+    
+    function destroy(uint ID) public isSecurity {
+        uint i = find(ID);
+        delete visitors[i];
+    }
+    
+    function read(uint ID) public view returns(uint, string memory, string memory, uint, uint) {
+        uint i = find(ID);
+        return(visitors[i].ID,
+               visitors[i].name,
+               visitors[i].host,
+               visitors[i].timeIn,
+               visitors[i].timeOut);
+    }
+    
+    function find(uint ID) view internal returns(uint) {
+        for(uint i = 0; i < visitors.length; i++) {
+            if(visitors[i].ID == ID) {
+                return i;
+            }
+        }
+    }
+        
+}
+ 
+ 
