@@ -1,0 +1,85 @@
+pragma solidity >=0.4.22 <0.6.0;
+
+contract TrailerLog {
+    
+    struct Trailer {
+        uint ID;
+        uint timeIn;
+        string driver;
+        string license;
+        string cab;
+        string trailer;
+        uint carrier;
+        string status;
+        uint seal;
+        uint timeOut;
+    }
+    
+    address guard;
+    Trailer[] trailers;
+    uint nextID = 1;
+    
+    constructor() public {
+        guard = msg.sender;
+    }
+    
+    modifier isGuard {
+        require(msg.sender == guard);
+        _;
+    }
+    
+    event enter(uint ID, uint timeIn, string driver, string trailer, uint carrier, string status, uint seal);
+    event exit(uint ID, string trailer, string status, uint seal, uint timeOut);
+    
+    function signIn(uint timeIn, string memory driver, string memory license, string memory cab, string memory trailer, uint carrier, string memory status, uint seal, uint timeOut) public isGuard {
+        trailers.push(Trailer(nextID, timeIn, driver, license, cab, trailer, carrier, status, seal, timeOut));
+        nextID++;
+        timeOut = 0;
+        emit enter(nextID, timeIn, driver, trailer, carrier, status, seal);
+    }
+    
+    function signOut(uint ID, string memory trailer, string memory status, uint seal, uint timeOut) public isGuard {
+        uint i = find(ID);
+        trailers[i].trailer = trailer;
+        trailers[i].status = status;
+        trailers[i].seal = seal;
+        trailers[i].timeOut = timeOut;
+        emit exit(ID, trailer, status, seal, timeOut);
+    }
+    
+    function updateTrailer(uint ID, string memory trailer, uint carrier, string memory status, uint seal) public isGuard {
+        uint i = find(ID);
+        trailers[i].trailer = trailer;
+        trailers[i].carrier = carrier;
+        trailers[i].status = status;
+        trailers[i].seal = seal;
+    }
+    
+    function read(uint ID) public view returns(uint, uint, string memory, string memory, string memory, string memory, uint, string memory, uint, uint) {
+        uint i = find(ID);
+        return(trailers[i].ID,
+               trailers[i].timeIn,
+               trailers[i].driver,
+               trailers[i].license,
+               trailers[i].cab,
+               trailers[i].trailer,
+               trailers[i].carrier,
+               trailers[i].status,
+               trailers[i].seal,
+               trailers[i].timeOut);
+    }
+    
+    function remove(uint ID) public isGuard {
+        uint i = find(ID);
+        delete trailers[i];
+    }
+    
+    function find(uint ID) view internal returns(uint) {
+        for(uint i = 0; i < trailers.length; i++){
+            if(trailers[i].ID == ID){
+                return i;
+            }
+        }
+    revert('Trailer does not exist!');
+    }
+}
