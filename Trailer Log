@@ -2,12 +2,16 @@ pragma solidity >=0.4.22 <0.6.0;
 
 contract TrailerLog {
     
+    struct Driver {
+        uint ID;
+        string name;
+        string license; 
+        string cab;
+    }
+    
     struct Trailer {
         uint ID;
         uint timeIn;
-        string driver;
-        string license;
-        string cab;
         string trailer;
         uint carrier;
         string status;
@@ -16,6 +20,7 @@ contract TrailerLog {
     }
     
     address guard;
+    Driver[] drivers;
     Trailer[] trailers;
     uint nextID = 1;
     
@@ -28,14 +33,15 @@ contract TrailerLog {
         _;
     }
     
-    event enter(uint ID, uint timeIn, string driver, string trailer, uint carrier, string status, uint seal);
+    event enter(uint ID, uint timeIn, string trailer, uint carrier, string status, uint seal);
     event exit(uint ID, string trailer, string status, uint seal, uint timeOut);
     
-    function inbound(uint timeIn, string memory driver, string memory license, string memory cab, string memory trailer, uint carrier, string memory status, uint seal, uint timeOut) public isGuard {
-        trailers.push(Trailer(nextID, timeIn, driver, license, cab, trailer, carrier, status, seal, timeOut));
+    function inbound(uint timeIn, string memory name, string memory license, string memory cab, string memory trailer, uint carrier, string memory status, uint seal, uint timeOut) public isGuard {
+        drivers.push(Driver(nextID, name, license, cab));
+        trailers.push(Trailer(nextID, timeIn, trailer, carrier, status, seal, timeOut));
         nextID++;
         timeOut = 0;
-        emit enter(nextID, timeIn, driver, trailer, carrier, status, seal);
+        emit enter(nextID, timeIn, trailer, carrier, status, seal);
     }
     
     function outbound(uint ID, string memory trailer, string memory status, uint seal, uint timeOut) public isGuard {
@@ -55,13 +61,13 @@ contract TrailerLog {
         trailers[i].seal = seal;
     }
     
-    function read(uint ID) public view returns(uint, uint, string memory, string memory, string memory, string memory, uint, string memory, uint, uint) {
+    function read(uint ID) public view returns(uint, string memory, string memory, string memory, uint, string memory, uint, string memory, uint, uint) {
         uint i = find(ID);
-        return(trailers[i].ID,
+        return(drivers[i].ID,
+               drivers[i].name,
+               drivers[i].license,
+               drivers[i].cab,
                trailers[i].timeIn,
-               trailers[i].driver,
-               trailers[i].license,
-               trailers[i].cab,
                trailers[i].trailer,
                trailers[i].carrier,
                trailers[i].status,
@@ -71,12 +77,13 @@ contract TrailerLog {
     
     function remove(uint ID) public isGuard {
         uint i = find(ID);
+        delete drivers[i];
         delete trailers[i];
     }
     
     function find(uint ID) view internal returns(uint) {
         for(uint i = 0; i < trailers.length; i++){
-            if(trailers[i].ID == ID){
+            if(drivers[i].ID == ID){
                 return i;
             }
         }
