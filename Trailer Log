@@ -31,14 +31,14 @@ contract TrailerLog {
     event enter(uint ID, uint timeIn, string driver, string trailer, uint carrier, string status, uint seal);
     event exit(uint ID, string trailer, string status, uint seal, uint timeOut);
     
-    function signIn(uint timeIn, string memory driver, string memory license, string memory cab, string memory trailer, uint carrier, string memory status, uint seal, uint timeOut) public isGuard {
+    function inbound(uint timeIn, string memory driver, string memory license, string memory cab, string memory trailer, uint carrier, string memory status, uint seal, uint timeOut) public isGuard {
         trailers.push(Trailer(nextID, timeIn, driver, license, cab, trailer, carrier, status, seal, timeOut));
         nextID++;
         timeOut = 0;
         emit enter(nextID, timeIn, driver, trailer, carrier, status, seal);
     }
     
-    function signOut(uint ID, string memory trailer, string memory status, uint seal, uint timeOut) public isGuard {
+    function outbound(uint ID, string memory trailer, string memory status, uint seal, uint timeOut) public isGuard {
         uint i = find(ID);
         trailers[i].trailer = trailer;
         trailers[i].status = status;
