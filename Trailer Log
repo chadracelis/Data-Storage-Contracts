@@ -33,10 +33,32 @@ contract TrailerLog {
         _;
     }
     
-    event enter(uint ID, uint timeIn, string trailer, uint carrier, string status, uint seal);
-    event exit(uint ID, string trailer, string status, uint seal, uint timeOut);
+    event enter(
+        uint ID, 
+        uint timeIn, 
+        string trailer, 
+        uint carrier, 
+        string status, 
+        uint seal);
+    event exit(
+        uint ID, 
+        string trailer, 
+        string status, 
+        uint seal, 
+        uint timeOut);
     
-    function inbound(uint timeIn, string memory name, string memory license, string memory cab, string memory trailer, uint carrier, string memory status, uint seal, uint timeOut) public isGuard {
+    function inbound(
+        uint timeIn, 
+        string memory name, 
+        string memory license, 
+        string memory cab, 
+        string memory trailer, 
+        uint carrier, 
+        string memory status, 
+        uint seal, 
+        uint timeOut) 
+        public 
+        isGuard {
         drivers.push(Driver(nextID, name, license, cab));
         trailers.push(Trailer(nextID, timeIn, trailer, carrier, status, seal, timeOut));
         nextID++;
@@ -44,7 +66,14 @@ contract TrailerLog {
         emit enter(nextID, timeIn, trailer, carrier, status, seal);
     }
     
-    function outbound(uint ID, string memory trailer, string memory status, uint seal, uint timeOut) public isGuard {
+    function outbound(
+        uint ID, 
+        string memory trailer, 
+        string memory status, 
+        uint seal, 
+        uint timeOut) 
+        public 
+        isGuard {
         uint i = find(ID);
         trailers[i].trailer = trailer;
         trailers[i].status = status;
@@ -53,7 +82,13 @@ contract TrailerLog {
         emit exit(ID, trailer, status, seal, timeOut);
     }
     
-    function updateTrailer(uint ID, string memory trailer, uint carrier, string memory status, uint seal) public isGuard {
+    function updateTrailer(
+        uint ID, 
+        string memory trailer, 
+        uint carrier, 
+        string memory status, 
+        uint seal) public 
+        isGuard {
         uint i = find(ID);
         trailers[i].trailer = trailer;
         trailers[i].carrier = carrier;
@@ -61,7 +96,17 @@ contract TrailerLog {
         trailers[i].seal = seal;
     }
     
-    function read(uint ID) public view returns(uint, string memory, string memory, string memory, uint, string memory, uint, string memory, uint, uint) {
+    function read(uint ID) public view returns(
+        uint, 
+        string memory, 
+        string memory, 
+        string memory, 
+        uint, 
+        string memory, 
+        uint, 
+        string memory, 
+        uint, 
+        uint) {
         uint i = find(ID);
         return(drivers[i].ID,
                drivers[i].name,
