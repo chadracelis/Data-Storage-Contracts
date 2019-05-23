@@ -87,7 +87,8 @@ contract TrailerLog {
         string memory trailer, 
         uint carrier, 
         string memory status, 
-        uint seal) public 
+        uint seal) 
+        public 
         isGuard {
         uint i = find(ID);
         trailers[i].trailer = trailer;
