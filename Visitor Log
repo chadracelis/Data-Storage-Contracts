@@ -26,7 +26,13 @@ contract VisitorLog {
         _;
     }
     
-    function signIn(string memory name, string memory host, uint timeIn, uint timeOut) public isSecurity {
+    function signIn(
+        string memory name, 
+        string memory host, 
+        uint timeIn, 
+        uint timeOut) 
+        public 
+        isSecurity {
         visitors.push(visitor(nextID, name, host, timeIn, timeOut));
         timeOut = 0;
         nextID++;
@@ -62,5 +68,6 @@ contract VisitorLog {
     }
         
 }
+ 
  
  
