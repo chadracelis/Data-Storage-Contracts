@@ -1,0 +1,100 @@
+pragma solidity ^0.5.2;
+pragma experimental ABIEncoderV2;
+
+contract Voting {
+    
+    struct Choice {
+        uint id;
+        string name;
+        uint votes;
+    }
+    
+    struct Ballot {
+        uint id;
+        string name;
+        Choice[] choices;
+        uint end;
+    }
+    
+    mapping(address => bool) public voters;
+    mapping(uint => Ballot) ballots;
+    mapping(address => mapping(uint => bool)) votes;
+    
+    address public admin;
+    uint nextBallotId = 1;
+    
+    constructor() public {
+        admin = msg.sender;
+    }
+    
+    modifier onlyAdmin {
+        require(msg.sender == admin);
+        _;
+    }
+    
+    function addVoters(address[] calldata _voters) external onlyAdmin {
+        for(uint i = 0; i < _voters.length; i++) {
+            voters[_voters[i]] = true;
+        }
+    }
+    
+    function createBallot(
+        string memory name,
+        string[] memory _choices,
+        uint offset)
+        public
+        onlyAdmin {
+            ballots[nextBallotId].id = nextBallotId;
+            ballots[nextBallotId].name = name;
+            ballots[nextBallotId].end = now + offset;
+            for(uint i = 0; i < _choices.length; i++) {
+                ballots[nextBallotId].choices.push(Choice(i, _choices[i], 0));
+            }
+            nextBallotId++;
+        }
+        
+        
+    function vote(uint ballotId, uint choiceId) external {
+        require(voters[msg.sender] == true, 'You are not an eligible voter');
+        require(votes[msg.sender][ballotId] == false, 'You can only vote once');
+        require(now < ballots[ballotId].end, 'Voting has ended');
+        votes[msg.sender][ballotId] = true;
+        ballots[ballotId].choices[choiceId].votes++;
+    }
+    
+    function results(uint ballotId)
+        view
+        external
+        returns(Choice[] memory) {
+            require(now >= ballots[ballotId].end, 'Voting has not ended');
+            return(ballots[ballotId].choices);
+        }
+        
+        
+}
+
+  //If no `pragma experimental ABIEncoderV2`
+  //function results(uint ballotId) 
+  //  view 
+  //  external 
+  //  returns(uint[] memory, string[] memory, uint[]memory) {
+  //  require(now >= ballots[ballotId].end, 'can only see result after ballot end');
+  //  Choice[] storage choices = ballots[ballotId].choices;
+  //  uint[] memory ids = new uint[](choices.length);
+  //  string[] memory names = new string[](choices.length);
+  //  uint[] memory votes = new uint[](choices.length);
+  //  for(uint i = 0; i < choices.length; i++) {
+  //    ids[i] = choices[i].id;
+  //    names[i] = choices[i].name;
+  //    votes[i] = choices[i].votes;
+  //  }
+  //  return(ids, names, votes);
+  //}
+  
+  // Admin Interaction
+  // 1. Deploy contract as is
+  // 2. As contract creator, go to addVoters function and an array of voters: ["voter address 1", "voter address 2", "etc"]
+  // 3. Create ballot with the following arguments: "Choice type", ["choice 1", "choice 2", "etc"], duration of voting in seconds
+  
+  // Voter interaction
+  // 1. Go to vote function, type 1 as ballotId, then choose a choice candidate by integer
