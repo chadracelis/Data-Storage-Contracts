@@ -39,13 +39,13 @@ contract Voting {
     }
     
     function createBallot(
-        string memory name,
+        string memory _name,
         string[] memory _choices,
         uint offset)
         public
         onlyAdmin {
             ballots[nextBallotId].id = nextBallotId;
-            ballots[nextBallotId].name = name;
+            ballots[nextBallotId].name = _name;
             ballots[nextBallotId].end = now + offset;
             for(uint i = 0; i < _choices.length; i++) {
                 ballots[nextBallotId].choices.push(Choice(i, _choices[i], 0));
